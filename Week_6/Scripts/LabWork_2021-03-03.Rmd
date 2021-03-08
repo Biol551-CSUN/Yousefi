@@ -1,0 +1,76 @@
+---
+title: "Lab Work 2021-03-03"
+author: "Nikolas Yousefi"
+date: "2021-03-03"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    hightlight: tango
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+# Libraries
+```{r}
+library(palmerpenguins)
+library(tidyverse)
+library(here)
+library(kableExtra)
+library(ggeasy)
+```
+
+# Data
+```{r}
+penguins <- glimpse(penguins)
+```
+
+# Make a table
+```{r, echo = FALSE}
+penguins %>%
+  group_by(species, island, sex) %>% # Grouping by specific columns
+  summarise(mean_flipper = mean(flipper_length_mm, na.rm=TRUE)) %>% # Finding mean of flipper length
+  filter(sex != "NA") %>% # Removing NAs from sex
+  pivot_wider(id_cols =c(1:2),
+              names_from = "sex",
+              values_from = "mean_flipper" ) %>% # Pivot wider by aforementioned groups
+  rename("Species" = "species",
+         "Island" = "island",
+         "Male" = "male",
+         "Female" = "female") %>% # Rename to proper capitalization
+   drop_na() %>% # Dropping all NAs from all categories
+  kbl(caption = "<b>Flipper Length (mm) by Sex</b>") %>% # Table caption 
+  kable_classic() %>% # Table theme
+  kable_styling(bootstrap_options = c("hover", "condensed"), full_width = TRUE) %>% # Table size and appearance specifications
+  collapse_rows(columns = 1, valign = "top")
+```
+
+# Make a plot
+```{r, echo = FALSE}
+penguinplot <- penguins %>% # Using previous data
+drop_na() %>% # Dropping all NAs from all groups
+ggplot(.,aes(x = sex,
+             y = flipper_length_mm,
+             fill = island)) + # Setting up the plot
+  geom_boxplot() + # choosing boxplot graph
+  geom_jitter(color="black", size=0.4, alpha=0.3) + # Adding jitter to show all data
+  theme_bw()+ # Basic theme
+  theme(strip.background = element_rect(fill = "white", color = "white"), # Forcing a white background
+        strip.text = element_text(face = "bold", size = 10), # Bolding and increasing text of islands
+        plot.title = element_text(size=20)) + # Bolding title
+  scale_x_discrete(labels=c("female" = "Female", 
+                            "male" = "Male")) + # Capitalizing X-axis scales
+   labs(x = "Sex",
+        y = "Flipper Length (mm)",
+        fill = "Island",
+        title = "Flipper Length (mm) by Sex and Island") + # Capitalizing all labels
+  ggeasy::easy_center_title()+ # Centering title
+  ggsave(here("Week_6","Output","Week6_LabWork_RMarkdownPlot.png")) # Saving in appropriate location
+
+penguinplot
+```

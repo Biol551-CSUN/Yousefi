@@ -1,0 +1,46 @@
+---
+title: "My First RMarkdown Doc"
+author: "Nikolas Yousefi"
+date: "3/1/2021"
+output: 
+  html_document:
+    toc: TRUE
+    tocf_float: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+Today we are going to work with the penguin data to learn *RMarkdown*
+
+## Load Libraries
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+library(here)
+```
+
+# Inspect the data
+```{r}
+glimpse(penguins)
+```
+
+# Make a simple plot
+This is a plot of bill depth by bill length. **Species** are in colors.  
+Species are:  
+- Gentoo  
+- Adelie  
+- Chinstrap  
+
+```{r}
+penguins %>% 
+  ggplot(aes(x=bill_length_mm, y=bill_depth_mm, color=species))+
+  geom_point()+
+  geom_smooth(method="lm") +
+  labs(x="Bill Length (mm)", 
+       y="Bill Length (mm)") +
+  theme_bw()
+```
+
