@@ -1,0 +1,66 @@
+---
+title: "Lab Work 2021-03-03"
+author: "Nikolas Yousefi"
+date: "2021-03-03"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    hightlight: tango
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+# Load libraries
+```{r}
+library(tidyverse)
+library(here)
+library(maps)
+library(mapdata)
+library(mapproj)
+```
+
+# Read and load data
+```{r}
+sf_trees <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-28/sf_trees.csv')
+
+View(sf_trees)
+```
+
+# Data Analysis
+```{r}
+sftrees_clean <- sf_trees %>% 
+  select(species, latitude, longitude) %>% # Selecting groups of interest
+  filter(species == "Quercus agrifolia :: Coast Live Oak") %>% # Selecting tree of interest 
+  filter(!latitude >= 38) %>% 
+  filter(!longitude <= -122.468) # Filtering latitude and latitude of trees ending up in the ocean
+
+head(sftrees_clean) # View part of the new data
+
+SF_map <- map_data("county") %>% 
+          filter (subregion == "san francisco") # Filtering for only a map showinf San Francisco county
+```
+
+# Map plotting
+```{r}
+ggplot()+ # Setting up the plot
+  geom_polygon(data = SF_map, 
+               aes(x = long, 
+                   y = lat, 
+                   group = group,
+                   fill = "species"),
+                   color = "black")+ # Map of San Francisco and the plotting of axes
+  geom_point(data = sftrees_clean, aes(x = longitude, y = latitude))+ # Adding the location of trees from the other data
+  coord_map(projection = "mollweide")+ # Selecting the projection type
+  theme_minimal()+ # Selecting theme
+  theme(legend.position = "none")+ # Removing legend
+  labs(x="Longitude", y="Latitude", 
+     title="Distribution of Coast Live Oaks in San Francisco")+ # Labeling axes and title
+   ggsave(here("Week_7", "Output", "SFTrees_Plot_2021-03-08.png")) # Saving in appropriate spot
+```
+
