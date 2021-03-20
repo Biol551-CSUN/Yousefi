@@ -1,0 +1,144 @@
+---
+title: "Good Plot, Bad Plot"
+author: "Nikolas Yousefi"
+date: "3/15/2021"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+# Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(ggeasy)
+library(extrafont)
+library(ghibli)
+library(viridis)
+```
+
+# Loading Data
+
+```{r}
+coffee_ratings <- read.csv(here("Week_7","Data","coffee_ratings.csv"))
+
+glimpse(coffee_ratings)
+```
+
+# Analayzing Data
+
+```{r}
+coffee_clean <- coffee_ratings %>% 
+  select(total_cup_points, species, country_of_origin) %>% #Selecting data of interest
+  filter(species == "Arabica") %>% # Picking only Arabica beans 
+  pivot_wider(names_from = species) %>% # Pivoting wider for easier analysis
+  group_by(country_of_origin) %>% # Grouping to make getting mean easier
+  summarise(mean_rating = mean(total_cup_points)) %>% # Getting mean of total cup points per country of origin
+  drop_na() # Dropping any data with NAs
+```
+
+# Bad Plot
+
+```{r, fig.width=10, fig.height=10}
+ggplot(coffee_clean, aes(x=country_of_origin, y=mean_rating, fill = mean_rating, color = country_of_origin))+ # Setting up initial graph
+  geom_bar(stat="identity")+ # Setting up as a bar graph
+  theme_minimal() + # Minimal theme
+  ylim(-50,100)+ # y-limit for making circular bar graph 
+  theme(text = element_text(family = "Jokerman",
+                            face = "bold"), # Selecting font and bolding
+    plot.background = element_rect(fill = ghibli_palette("TotoroDark")[c(2)]), # Filling background with a specific color
+    plot.title = element_text(colour = ghibli_palette("MononokeMedium")[c(2)], size = 30), # Labeling plot title with a specific color
+    plot.caption = element_text(size = 18), # Plot caption size
+    legend.title = element_text(size = 25,
+                                family = "Chiller"), # Legend title size and font type
+    axis.text = element_blank(), # No axes text
+    axis.title = element_blank(), # No axes titles
+    panel.grid = element_blank())+ # No grid
+coord_polar(start = 0)+ # Turning cartesian graph into a circular one
+scale_fill_gradient(low = "#6F4E37", high = "#7B3F00")+ # Setting legend gradient
+geom_text(data=coffee_clean,
+          aes(x=country_of_origin,
+              y=mean_rating,
+              label=country_of_origin,
+              hjust= 0.5,
+              vjust = -0.5),
+          family = "Vivaldi")+ # Setting up the circular bar plot font and adjusting text location
+  labs(title = "coffee analysis",
+       caption = "WHO WANTS CAWFEE?! - Vic Dibitetto")+ # Adding title and caption
+  ggsave(here("Week_7", "Output", "badplot.png"),
+         width = 10, height = 10) # Saving in specified area and at specific size
+           
+```
+
+## Why this plot is bad
+
+-   Generic title that does not convey what the actual analysis is about
+
+-   Title also lacks proper capitalization
+
+-   Dark text against a dark background makes many of the words hard to read and is definitely not color-blind friendly
+
+-   Circular bar graph makes the data hard to interpret, especially with the lack of axes to determine what is being analyzed
+
+-   Multicolored text denoting the countries on the bar graph overlaps against one another and is not a standard font, making it near illegible
+
+-   Using a gradient to specify the means, especially one where the "low" and "high" colors are very similar, makes it hard to parse the data ; much of the data are also not whole numbers
+
+-   Useless legend denoting country of origin that not only uses a gradient style, making it hard to read, but also bleeds out of the graph
+
+-   Both legends also lack proper titles, instead opting for the ones directly used in the raw data
+
+-   Three different, non-standard font styles are used in the graph, legend, title, and caption
+
+-   The caption, which is usually meant to specify the source from which this data comes from, is replaced with a funny, but useless quote
+
+# Good Plot
+
+```{r, fig.width = 9, fig.height = 7}
+coffeegood <- coffee_clean %>% 
+  filter(mean_rating >= 82.8300) # Filtering so only top 10 are included
+
+ggplot(coffeegood, aes(x=country_of_origin, y=mean_rating, fill = country_of_origin))+ # Setting up the graph
+  geom_bar(stat = "identity", show.legend = FALSE)+ # Using a bar graph for these data
+  theme_bw()+ # Selecting a basic theme
+  coord_flip()+ # Flipping axes
+  scale_fill_viridis_d()+ # Going with a color-blind friendly color for the bars
+  theme(plot.title = element_text(size = 16), # Changing title size
+        axis.text = element_text(size = 12), # Changing text size of the axes text
+        axis.title.x = element_text(size = 14), # Changing axis text size
+        axis.title.y = element_text(size = 14))+ # Changing axis text size)
+labs(x = "Country of Origin",
+       y = "Average Cup Points",
+       title = "Average Cup Points of Arabica Coffee for Top Ten Countries",
+       caption = "Source: rfordatascience/tidytuesday and Coffee Quality Database")+ # Adding axes titles, as well as a graph title and caption
+  ggeasy::easy_center_title()+ # Centering title
+    ggsave(here("Week_7", "Output", "goodplot.png"),
+         width = 9, height = 7) # Saving in specified area and at specific size
+```
+
+## Why this plot is good
+
+-   No vibrant-colored backgrounds or text making words or data hard to read or interpret
+
+-   While optional, the data has been cleaned and reduced so 30+ different countries of origin aren't being graphed
+
+-   Title accurately states what the plot is looking to measure and visualize
+
+-   Axes are properly labeled
+
+-   Text is large, readable, and without distracting font types
+
+-   Bar graph colors are color-blind friendly
+
+-   No unnecessary legends
+
+-   Caption properly cites where the data was originally sourced from
