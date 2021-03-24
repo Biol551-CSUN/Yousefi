@@ -1,0 +1,60 @@
+---
+title: "Lab Work 2021-03-24"
+author: "Nikolas Yousefi"
+date: "2021-03-24"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+# Libraries
+```{r}
+library(tidyverse)
+library(here)
+library(LaCroixColoR)
+```
+
+# Loading Data
+```{r}
+chemdata<-read_csv(here("Week_4", "Data", "chemicaldata_maunalua.csv"))
+
+glimpse(chemdata)
+```
+
+# Functions
+```{r}
+celsius_to_farenheit <- function(Temp_C) { 
+  temp_F <- ((Temp_C  * 9/5) + 32)
+  return(temp_F)
+}
+
+celsius_to_farenheit(0)
+```
+
+# Graphing
+```{r}
+myplot<-function(data = chemdata, x, y){
+lac<-lacroix_palette("PassionFruit", 4, type = "discrete") # Color palette 
+
+ggplot(data, aes(x = {{x}}, y = {{y}} , color = Tide_time))+ # Setting up the function parameters
+    geom_boxplot()+ # Setting up boxplot
+    geom_jitter(alpha = 0.3)+ # Adding jitter
+    scale_color_manual("Tide time", values=lac)+ # Setting up color palette
+    theme_bw() # Black/white theme
+} 
+
+myplot(x = Season, y = celsius_to_farenheit(Temp_in))+
+  labs(y = "Temperature (F)",
+       title = "Temperature in relation to season and tide time")+ # Graphing the function
+  ggsave(here("Week_8","Output","Week_8_FunctionGraph_2021-03-24.png"), 
+         width = 7, height = 7) # Saving the graph to my folder
+```
+
