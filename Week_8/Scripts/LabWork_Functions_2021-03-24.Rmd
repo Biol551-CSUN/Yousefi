@@ -31,12 +31,20 @@ glimpse(chemdata)
 
 # Functions
 ```{r}
+<<<<<<< HEAD
 celsius_to_fahrenheit <- function(Temp_C) { 
+=======
+celsius_to_farenheit <- function(Temp_C) { 
+>>>>>>> 16b8c8b128fcbbc1e6c5881466d6ba46509733d1
   temp_F <- ((Temp_C  * 9/5) + 32)
   return(temp_F)
 }
 
+<<<<<<< HEAD
 celsius_to_fahrenheit(0)
+=======
+celsius_to_farenheit(0)
+>>>>>>> 16b8c8b128fcbbc1e6c5881466d6ba46509733d1
 ```
 
 # Graphing
@@ -51,7 +59,11 @@ ggplot(data, aes(x = {{x}}, y = {{y}} , color = Tide_time))+ # Setting up the fu
     theme_bw() # Black/white theme
 } 
 
+<<<<<<< HEAD
 myplot(x = Season, y = celsius_to_fahrenheit(Temp_in))+
+=======
+myplot(x = Season, y = celsius_to_farenheit(Temp_in))+
+>>>>>>> 16b8c8b128fcbbc1e6c5881466d6ba46509733d1
   labs(y = "Temperature (F)",
        title = "Temperature in relation to season and tide time")+ # Graphing the function
   ggsave(here("Week_8","Output","Week_8_FunctionGraph_2021-03-24.png"), 
